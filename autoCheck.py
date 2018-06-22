@@ -32,10 +32,6 @@ headers = {
     "Content-Type": "application/x-www-form-urlencoded"
 }
 
-fiddler_proxy = {
-    "http": "http://127.0.0.1:8888"
-}
-
 
 def login(username, password):
     login_url = "http://webapp.cocc.cdmetro.cn:10080/api/login"
@@ -66,18 +62,19 @@ def login(username, password):
     headers['userId'] = userId
 
     try:
-        loginPost = s.post(login_url, data=formdata, headers=headers, proxies=fiddler_proxy)
-        loginReturnData = loginPost.json()
-        code = loginReturnData['code']
-        tokenId = loginReturnData['returnData'][0]
-        if(code == 0):
-            print("登录成功")
-            queryTotalPoints(tokenId, userId)
-            autoCheckin(tokenId, userId)
-        else:
-            print("登录异常\n".join(loginReturnData))
+        loginPost = s.post(login_url, data=formdata, headers=headers)
+        if loginPost.headers['Content-Length'] != 0:
+            loginReturnData = loginPost.json()
+            code = loginReturnData['code']
+            if(code == 0):
+                print("登录成功")
+                tokenId = loginReturnData['returnData'][0]
+                queryTotalPoints(tokenId, userId)
+                autoCheckin(tokenId, userId)
+            else:
+                print("登录异常\n" + loginReturnData['message'])
     except Exception as e:
-        print("登录失败\n".join(e))
+        print("登录失败\n" + e)
 
 
 def autoCheckin(tokenid, userid):
@@ -100,7 +97,7 @@ def autoCheckin(tokenid, userid):
     headers['userId'] = userId
 
     try:
-        checkinPost = s.post(query_url, headers=headers, proxies=fiddler_proxy)
+        checkinPost = s.post(query_url, headers=headers)
         if checkinPost.status_code == 200:
             ResponseHeaders = checkinPost.headers
             if ResponseHeaders['Content-Length'] == "0":
@@ -139,7 +136,7 @@ def queryCheckinStatus(tokenid, userid):
     headers['userId'] = userId
 
     try:
-        querySignInRecordPost = s.post(query_url, headers=headers, proxies=fiddler_proxy)
+        querySignInRecordPost = s.post(query_url, headers=headers)
         if querySignInRecordPost.status_code == 200:
             ResponseHeaders = querySignInRecordPost.headers
             if ResponseHeaders['Content-Length'] != "0":
@@ -178,7 +175,7 @@ def autoGoLottery(tokenid, userid):
     headers['userId'] = userId
 
     try:
-        goLotteryPost = s.post(query_url, headers=headers, proxies=fiddler_proxy)
+        goLotteryPost = s.post(query_url, headers=headers)
         if goLotteryPost.status_code == 200:
             ResponHeaders = goLotteryPost.headers
             if ResponHeaders['Content-Length'] != 0:
@@ -215,7 +212,7 @@ def getSurplusTimes(tokenid, userid):
     headers['userId'] = userId
 
     try:
-        getSurplusTimePost = s.post(query_url, headers=headers, proxies=fiddler_proxy)
+        getSurplusTimePost = s.post(query_url, headers=headers)
         if getSurplusTimePost.status_code == 200:
             ResponseHeader = getSurplusTimePost.headers
             if ResponseHeader['Content-Length'] != 0:
@@ -256,7 +253,7 @@ def queryTotalPoints(tokenid, userid):
     headers['userId'] = userId
 
     try:
-        queryTotalPointsPost = s.post(query_url, headers=headers, proxies=fiddler_proxy)
+        queryTotalPointsPost = s.post(query_url, headers=headers)
         if queryTotalPointsPost.status_code == 200:
             ResponseHeader = queryTotalPointsPost.headers
             if ResponseHeader['Content-Length'] != 0:
