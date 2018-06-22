@@ -63,16 +63,21 @@ def login(username, password):
 
     try:
         loginPost = s.post(login_url, data=formdata, headers=headers)
-        if loginPost.headers['Content-Length'] != 0:
-            loginReturnData = loginPost.json()
-            code = loginReturnData['code']
-            if(code == 0):
-                print("登录成功")
-                tokenId = loginReturnData['returnData'][0]
-                queryTotalPoints(tokenId, userId)
-                autoCheckin(tokenId, userId)
+        if loginPost.status_code == 200:
+            if loginPost.text:
+                loginReturnData = loginPost.json()
+                code = loginReturnData['code']
+                if(code == 0):
+                    print("登录成功")
+                    tokenId = loginReturnData['returnData'][0]
+                    queryTotalPoints(tokenId, userId)
+                    autoCheckin(tokenId, userId)
+                else:
+                    print("登录异常\n" + loginReturnData['message'])
             else:
-                print("登录异常\n" + loginReturnData['message'])
+                print("Post返回异常")
+        else:
+            print("请求失败")
     except Exception as e:
         print("登录失败\n" + e)
 
@@ -99,14 +104,12 @@ def autoCheckin(tokenid, userid):
     try:
         checkinPost = s.post(query_url, headers=headers)
         if checkinPost.status_code == 200:
-            ResponseHeaders = checkinPost.headers
-            if ResponseHeaders['Content-Length'] == "0":
+            if not checkinPost.content:
                 queryCheckinStatus(tokenid, userId)
             else:
                 checkinJson = checkinPost.json()
                 code = checkinJson['code']
                 mes = checkinJson['message']
-                print(checkinJson)
                 if code == 0:
                     print(mes)
                     getSurplusTimes(tokenid, userid)
@@ -138,8 +141,7 @@ def queryCheckinStatus(tokenid, userid):
     try:
         querySignInRecordPost = s.post(query_url, headers=headers)
         if querySignInRecordPost.status_code == 200:
-            ResponseHeaders = querySignInRecordPost.headers
-            if ResponseHeaders['Content-Length'] != "0":
+            if querySignInRecordPost.text:
                 signInRecordJson = querySignInRecordPost.json()
                 signInRecodeData = signInRecordJson['returnData']
                 signInDate = signInRecodeData[0]['checkin_date']
@@ -177,8 +179,7 @@ def autoGoLottery(tokenid, userid):
     try:
         goLotteryPost = s.post(query_url, headers=headers)
         if goLotteryPost.status_code == 200:
-            ResponHeaders = goLotteryPost.headers
-            if ResponHeaders['Content-Length'] != 0:
+            if not goLotteryPost.text:
                 lotteryResultJson = goLotteryPost.json()
                 lotteryResultCode = lotteryResultJson['code']
                 print(lotteryResultCode)
@@ -214,8 +215,7 @@ def getSurplusTimes(tokenid, userid):
     try:
         getSurplusTimePost = s.post(query_url, headers=headers)
         if getSurplusTimePost.status_code == 200:
-            ResponseHeader = getSurplusTimePost.headers
-            if ResponseHeader['Content-Length'] != 0:
+            if getSurplusTimePost.text:
                 surplusTimeJson = getSurplusTimePost.json()
                 surplusTimeData = surplusTimeJson['returnData'][0]
                 if surplusTimeData != 0:
@@ -255,8 +255,7 @@ def queryTotalPoints(tokenid, userid):
     try:
         queryTotalPointsPost = s.post(query_url, headers=headers)
         if queryTotalPointsPost.status_code == 200:
-            ResponseHeader = queryTotalPointsPost.headers
-            if ResponseHeader['Content-Length'] != 0:
+            if queryTotalPointsPost.text:
                 totalPointsJson = queryTotalPointsPost.json()
                 totalPoints = totalPointsJson['returnData'][0]['totalPoints']
                 print("当前积分：" + str(totalPoints))
@@ -265,7 +264,7 @@ def queryTotalPoints(tokenid, userid):
         else:
             print("请求失败")
     except Exception as e:
-        print(e)
+        print("发生异常")
 
 
 if __name__ == "__main__":
