@@ -268,4 +268,5 @@ def queryTotalPoints(tokenid, userid):
 
 
 if __name__ == "__main__":
+    print(time.strftime("%Y-%m-%d".format(time.localtime())))
     login(args.username[0], args.password[0])
