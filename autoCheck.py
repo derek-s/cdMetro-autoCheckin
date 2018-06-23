@@ -185,8 +185,8 @@ def autoGoLottery(tokenid, userid):
                 print(lotteryResultCode)
                 if lotteryResultCode == "0":
                     print(lotteryResultJson['message'])
-                    lotteryReturnData = lotteryResultJson['returnData']['prize']
-                    print(lotteryReturnData['name'])
+                    for i in lotteryResultJson['returnData']:
+                        print(i["prize"]["name"])
                 else:
                     print(lotteryResultJson['message'])
     except Exception as e:
