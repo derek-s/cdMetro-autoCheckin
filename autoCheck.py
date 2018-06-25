@@ -179,10 +179,9 @@ def autoGoLottery(tokenid, userid):
     try:
         goLotteryPost = s.post(query_url, headers=headers)
         if goLotteryPost.status_code == 200:
-            if not goLotteryPost.text:
+            if goLotteryPost.text:
                 lotteryResultJson = goLotteryPost.json()
                 lotteryResultCode = lotteryResultJson['code']
-                print(lotteryResultCode)
                 if lotteryResultCode == 0:
                     print(lotteryResultJson['message'])
                     for i in lotteryResultJson['returnData']:
