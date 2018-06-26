@@ -183,11 +183,12 @@ def autoGoLottery(tokenid, userid):
                 lotteryResultJson = goLotteryPost.json()
                 lotteryResultCode = lotteryResultJson['code']
                 if lotteryResultCode == 0:
-                    print(lotteryResultJson['message'])
+                    print("抽奖状态: " + str(lotteryResultJson['message']))
                     for i in lotteryResultJson['returnData']:
-                        print(i["prize"]["name"])
+                        print("结果：" + str(i["prize"]["name"]))
                 else:
                     print(lotteryResultJson['message'])
+                queryTotalPoints(tokenid, userId)
     except Exception as e:
         print(e)
 
